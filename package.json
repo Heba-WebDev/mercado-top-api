@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "@types/cors": "^2.8.16",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.9.0",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "mysql2": "^3.6.3",
+    "sequelize": "^6.35.0",
+    "sequelize-typescript": "^2.1.5"
+  },
+  "scripts": {
+    "start": "node --env-file .env ts-node src/index.ts",
+    "build": "tsc",
+    "dev": "nodemon -e ts --watch 'src/**/*.ts' --exec 'tsc && node --env-file .env dist/index.js'"
+  }
+}
