@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import Users from "./users";
-import Products from "./products";
 import Locations from "./locations";
+import Products from "./products";
 
 const sequelize = new Sequelize(
   process.env.DATABASE as string,
@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
     define: {
         freezeTableName: true,
     },
+    models: [Users, Locations, Products]
   },
 );
 
