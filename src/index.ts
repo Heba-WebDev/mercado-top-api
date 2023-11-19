@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import sequelize from "./data/db";
+import { userRouter } from "./routes/users.route";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,13 +9,12 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send("Hello");
-});
+app.use("/api/users", userRouter);
 
 const connectToDB =  async () => {
   try {
     await sequelize.authenticate();
+    sequelize.sync({alter: true});
     console.log("Connection to DB has been established successfully.");
     return true;
   } catch (error) {
