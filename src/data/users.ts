@@ -8,8 +8,7 @@ export default class Users extends Model {
   @Default(DataType.UUIDV4)
   @Column({
     primaryKey: true,
-    type: DataType.UUID,
-    allowNull: false
+    type: DataType.UUID
   })
   user_id?: number;
 
@@ -29,10 +28,13 @@ export default class Users extends Model {
   })
   password?: string;
 
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    allowNull: true
+  })
   profile_picture?: string;
 
   @ForeignKey(() => Locations)
-  @Column(DataType.INTEGER)
-  location_id?: number;
+  @Column(DataType.STRING)
+  country?: string;
 }
