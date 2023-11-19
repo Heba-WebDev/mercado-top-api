@@ -9,6 +9,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "mysql2": "^3.6.3",
     "sequelize": "^6.35.0",
