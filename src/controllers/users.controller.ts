@@ -75,7 +75,7 @@ if (!usr) {
 }
 
 const matchedPassword = await compare(password, usr.password!);
-const token = await generateJwt({name: usr.name, country: usr.country});
+const token = await generateJwt({user_id: usr.user_id, country: usr.country});
 
 if (!matchedPassword) {
     const err = new globalError("Invalid Credentials.", 401
@@ -85,6 +85,7 @@ if (!matchedPassword) {
     return res.status(200).send({
         status: SUCCESS,
         data: {
+            user_id: usr.user_id,
             name: usr.name,
             email: usr.email,
             country: usr.country,
@@ -93,7 +94,7 @@ if (!matchedPassword) {
         message: "User successfully logged in."
     })
 }
-})
+});
 
 const forgotPassword = wrapper(async(req: Request, res: Response, next: NextFunction) => {
 const { email } = req.body;
@@ -146,10 +147,68 @@ transporter.sendMail(mailOptions, (error, info) => {
     }
 });
 
-})
+});
+
+const resetPassword = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+const { email, token } = req.body;
+if (!email || !token) {
+    const err = new globalError("Email and token are required.", 400
+    ,FAIL)
+    return next(err);
+}
+
+const usr = await Users.findOne({where: {email: email}});
+
+if (!usr) {
+    const err = new globalError("User not found.", 400
+    ,FAIL)
+    return next(err);
+}
+
+try {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+} catch (err) {
+  console.error('JWT verification failed:', err);
+  const error = new globalError("Invalid token.", 401, FAIL);
+  return next(error);
+}
+
+});
+
+const getUserById = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+const { user_id } = req.body;
+if (!user_id) {
+    const err = new globalError("Id is required.", 400
+    ,FAIL)
+    return next(err);
+}
+
+const usr = await Users.findOne({where: {user_id: user_id}});
+
+if (!usr) {
+    const err = new globalError("User not found.", 400
+    ,FAIL)
+    return next(err);
+} else {
+    return res.status(200).send({
+        status: SUCCESS,
+        data: {
+            user_id: usr.user_id,
+            name: usr.name,
+            email: usr.email,
+            country: usr.country
+        }
+    })
+}
+
+
+
+});
 
 export {
     signup,
     signin,
-    forgotPassword
+    forgotPassword,
+    resetPassword,
+    getUserById
 }
