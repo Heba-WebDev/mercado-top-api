@@ -18,8 +18,8 @@ export default class Products extends Model {
   user?: Users;
 
   @ForeignKey(() => Locations)
-  @Column(DataType.INTEGER)
-  location_id?: number;
+  @Column(DataType.STRING)
+  country?: string;
 
   @Column({
     type: DataType.STRING,
@@ -56,13 +56,13 @@ export default class Products extends Model {
 
   @Column({
     type: DataType.TIME,
-    allowNull: false,
+    allowNull: true,
   })
   posted_at?: number;
 
   @Column({
     type: DataType.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
   })
   is_active?: boolean;
 
