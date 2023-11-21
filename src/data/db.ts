@@ -1,4 +1,7 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
+import Users from "./users";
+import Locations from "./locations";
+import Products from "./products";
 
 const sequelize = new Sequelize(
   process.env.DATABASE as string,
@@ -9,8 +12,9 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     define: {
         freezeTableName: true,
-    }
-  }
+    },
+    models: [Users, Locations, Products]
+  },
 );
 
 export default sequelize;

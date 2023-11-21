@@ -1,83 +1,69 @@
-import { Table, Model, DataType } from 'sequelize-typescript';
-import { ForeignKey } from 'sequelize';
-import sequelize from './db';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, Default } from 'sequelize-typescript';
 import Users from './users';
 import Locations from './locations';
 
 @Table({tableName: "products", timestamps: false, freezeTableName: true })
 export default class Products extends Model {
-    declare product_id: number;
-    declare user_id:ForeignKey<Users["user_id"]>;
-    declare location_id: ForeignKey<Locations["location_id"]>;
-    declare title: string;
-    declare description: string;
-    declare price: number;
-    declare photo_1: string;
-    declare photo_2: string;
-    declare photo_3: string;
-    declare posted_at: number;
-    declare is_active: boolean;
-}
+  @Default(DataType.UUIDV4)
+  @Column({
+    type: DataType.UUID,
+    primaryKey: true,
+  })
+  product_id?: number;
 
-Products.init(
-    {
-       product_id: {
-        type: DataType.UUID,
-        primaryKey: true,
-       },
-       user_id: {
-            type: DataType.UUID,
-            references: {
-                model: "users",
-                key: "user_id",
-            },
-        },
-        location_id: {
-            type: DataType.INTEGER,
-            references: {
-                model: "locations",
-                key: "location_id",
-            },
-        },
-        title: {
-            type: DataType.STRING,
-            allowNull: false,
-            validate:{len: [5, 150]}
-        },
-        description: {
-            type: DataType.STRING,
-            allowNull: false,
-            validate: {len: [5, 180]}
-        },
-        price: {
-            type: DataType.DECIMAL,
-            allowNull: false,
-            validate: {isNumeric: true}
-        },
-        photo_1: {
-            type: DataType.STRING,
-            allowNull: false,
-        },
-        photo_2: {
-            type: DataType.STRING,
-            allowNull: true,
-        },
-        photo_3: {
-            type: DataType.STRING,
-            allowNull: true,
-        },
-        posted_at: {
-            type: DataType.TIME,
-            allowNull: false,
-        },
-        is_active: {
-            type: DataType.BOOLEAN,
-            allowNull: false,
-        }
-    },
-    {
-        sequelize: sequelize,
-        tableName: "locations",
-        modelName: "Locations",
-    }
-)
+  @ForeignKey(() => Users)
+  @Column(DataType.UUID)
+  user_id?: number;
+  @BelongsTo(() => Users)
+  user?: Users;
+
+  @ForeignKey(() => Locations)
+  @Column(DataType.STRING)
+  country?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate:{len: [5, 150]}
+  })
+  title?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {len: [5, 180]}
+  })
+  description?: string;
+
+  @Column({
+    type: DataType.DECIMAL,
+    allowNull: false,
+    validate: {isNumeric: true}
+  })
+  price?: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  photo_1?: string;
+
+  @Column(DataType.STRING)
+  photo_2?: string;
+
+  @Column(DataType.STRING)
+  photo_3?: string;
+
+  @Column({
+    type: DataType.TIME,
+    allowNull: true,
+  })
+  posted_at?: number;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: true,
+  })
+  is_active?: boolean;
+
+}

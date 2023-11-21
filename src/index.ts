@@ -1,6 +1,12 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import sequelize from "./data/db";
+import { userRouter } from "./routes/users.route";
+import { CustomError } from "./interfaces/customError";
+import { statusCode } from "./utils/httpStatusCode";
+import { productsRouter } from "./routes/products.route";
+import { locationsRouter } from "./routes/locations.route";
+const { FAIL } = statusCode;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,13 +14,25 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send("Hello");
+app.use("/api/users", userRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/locations", locationsRouter);
+
+app.use((error: CustomError, req: Request, res: Response, next: NextFunction): void => {
+  res.status(error?.statusCode || 500).send({status: FAIL, mesaage: error.message})
 });
+
+app.all("*", (req: Request, res: Response, next: NextFunction) => {
+  res.status(404).send({
+    status: FAIL,
+    message: "Resource not found."
+  })
+})
 
 const connectToDB =  async () => {
   try {
     await sequelize.authenticate();
+    sequelize.sync();
     console.log("Connection to DB has been established successfully.");
     return true;
   } catch (error) {
