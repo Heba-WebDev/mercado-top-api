@@ -28,14 +28,6 @@ if (usr) {
     return next(err);
 }
 
-const location = await Locations.findOne({where: {country: country}});
-
-if (!location) {
-    const err = new globalError("Please provide a valid country name.", 400
-    ,FAIL)
-    return next(err);
-}
-
 const hashedPassword = await hash(password, 10);
 
 const user = new Users({name: name, email: email, password: password});
@@ -43,7 +35,7 @@ Users.create({
     name: name,
     email: email,
     password: hashedPassword,
-    country: location?.dataValues?.country
+    country: country
 })
 .then((result) => {
     return res.status(201).send({
@@ -52,7 +44,7 @@ Users.create({
         data: {
             name: name,
             email: email,
-            country: location?.dataValues?.country
+            country: country
         }
     })
 })
