@@ -104,7 +104,7 @@ if (!usr) {
     return next(err);
 }
 
-const token = jwt.sign({name: usr.name}, process.env.JWT_REFRESH_EXPIRATION as string, {
+const token = jwt.sign({name: usr.name}, process.env.JWT_SECRET_KEY as string, {
     expiresIn: process.env.JWT_EMAIL_EXPIRATION
 });
 
@@ -122,7 +122,7 @@ const mailOptions = {
     to: email,
     subject: "Reset password | Mercado Top",
     text: `Click on this link to reset your password:
-     ${process.env.BASE_URL}/reset-password?token=${token}`,
+     ${process.env.BASE_URL}/api/users/reset-password?token=${token}`,
 };
 
 transporter.sendMail(mailOptions, (error, info) => {
@@ -142,9 +142,9 @@ transporter.sendMail(mailOptions, (error, info) => {
 });
 
 const resetPassword = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-const { email, token } = req.body;
-if (!email || !token) {
-    const err = new globalError("Email and token are required.", 400
+const { email, token, newPassword } = req.body;
+if (!email || !token || !newPassword) {
+    const err = new globalError("Email, Password and token are required.", 400
     ,FAIL)
     return next(err);
 }
@@ -156,9 +156,15 @@ if (!usr) {
     ,FAIL)
     return next(err);
 }
-
+const hashedPassword = await hash(newPassword, 10);
 try {
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+  usr.password = hashedPassword;
+  await usr.save();
+  return res.status(200).send({
+        status: SUCCESS,
+        message: `Password successfully changed.`,
+    })
 } catch (err) {
   console.error('JWT verification failed:', err);
   const error = new globalError("Invalid token.", 401, FAIL);
