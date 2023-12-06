@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import Users from "../data/users";
 import { hash } from "bcrypt";
-import Locations from "../data/locations";
+import fs from "fs"
 import jwt from "jsonwebtoken";
 import { createTransport } from "nodemailer"
 import {compare}  from "bcrypt"
@@ -9,6 +9,7 @@ import { wrapper } from "../middlewares/asyncWrapper";
 import { statusCode } from "../utils/httpStatusCode";
 import { globalError } from "../utils/globalError";
 import { generateJwt } from "../utils/generateJWT";
+import path from "path";
 const { SUCCESS, FAIL } = statusCode;
 
 
@@ -116,13 +117,15 @@ const transporter = createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
-
+const link = `${process.env.BASE_URL}/reset-password?token=${token}&email=${usr.email}`
+const year: string = String(new Date().getFullYear());
+const htmlTemplate = fs.readFileSync(path.join(__dirname, '../../src/views/emails/RestPassword.html'), 'utf8');
+const htmlContent = htmlTemplate.replace('{name}', usr?.name as string).replace('{links}', link).replace(`{year}`, year);
 const mailOptions = {
     from: process.env.EMAIL_USR,
     to: email,
     subject: "Reset password | Mercado Top",
-    text: `Click on this link to reset your password:
-     ${process.env.BASE_URL}/api/users/reset-password?token=${token}`,
+    html : htmlContent
 };
 
 transporter.sendMail(mailOptions, (error, info) => {
