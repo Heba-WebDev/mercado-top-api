@@ -117,7 +117,7 @@ const transporter = createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
-const link = `${process.env.BASE_URL}/reset-password?token=${token}&email=${usr.email}`
+const link = `${process.env.BASE_URL_EMAIL}/reset-password?token=${token}&email=${usr.email}`
 const year: string = String(new Date().getFullYear());
 const htmlTemplate = fs.readFileSync(path.join(__dirname, '../../src/views/emails/RestPassword.html'), 'utf8');
 const htmlContent = htmlTemplate.replace('{name}', usr?.name as string).replace('{links}', link).replace(`{year}`, year);
