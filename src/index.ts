@@ -19,7 +19,7 @@ app.use("/api/products", productsRouter);
 app.use("/api/locations", locationsRouter);
 
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction): void => {
-  res.status(error?.statusCode || 500).send({status: FAIL, mesaage: error.message})
+  res.status(error?.statusCode || 500).send({status: FAIL, message: error.message})
 });
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
