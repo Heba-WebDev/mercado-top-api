@@ -84,7 +84,8 @@ if (!matchedPassword) {
             name: usr.name,
             email: usr.email,
             country: usr.country,
-            accessToken: token
+            accessToken: token,
+            profile_picture: usr.profile_picture
         },
         message: "User successfully logged in."
     })
