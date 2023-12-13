@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
+import path from "path";
 import cors from "cors";
 import sequelize from "./data/db";
 import { userRouter } from "./routes/users.route";
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use("/api/users", userRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/locations", locationsRouter);
+app.use('/src/static/profilePictures', express.static(path.join(__dirname, '..', 'src', 'static', 'profilePictures')));
 
 app.use((error: CustomError, req: Request, res: Response, next: NextFunction): void => {
   res.status(error?.statusCode || 500).send({status: FAIL, message: error.message})

@@ -14,7 +14,7 @@ const { SUCCESS, FAIL } = statusCode;
 
 
 const signup = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-const { name, email, password, country } = req.body;
+const { name, email, password, country, profile_picture } = req.body;
 if (!name || !email || !password || !country) {
     const err = new globalError("Name, Email, Password and country are required.", 400
     ,FAIL)
@@ -36,7 +36,8 @@ Users.create({
     name: name,
     email: email,
     password: hashedPassword,
-    country: country
+    country: country,
+    profile_picture: profile_picture || "black-guy.jpg"
 })
 .then((result) => {
     return res.status(201).send({
@@ -45,7 +46,8 @@ Users.create({
         data: {
             name: name,
             email: email,
-            country: country
+            country: country,
+            profile_picture: profile_picture || "black-guy.jpg"
         }
     })
 })
@@ -82,7 +84,8 @@ if (!matchedPassword) {
             name: usr.name,
             email: usr.email,
             country: usr.country,
-            accessToken: token
+            accessToken: token,
+            profile_picture: usr.profile_picture
         },
         message: "User successfully logged in."
     })

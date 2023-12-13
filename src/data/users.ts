@@ -22,6 +22,7 @@ export default class Users extends Model {
   })
   email?: string;
 
+  @Default("black-guy.jpg")
   @Column({
     type: DataType.STRING,
     validate: {len: [4, 70]},
