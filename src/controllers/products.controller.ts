@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import Locations from "../data/locations";
 import Products from "../data/products";
+import cloudinary from "../utils/cloudinary";
 import { wrapper } from "../middlewares/asyncWrapper";
 import { statusCode } from "../utils/httpStatusCode";
 import { globalError } from "../utils/globalError";
@@ -56,9 +57,13 @@ const getProductById = wrapper(async(req: Request, res: Response, next: NextFunc
 });
 
 const createProduct = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-    const {user_id, country, title, description, price, photo_1} = req.body;
-    if (!user_id || !country || !title || !description || !price || !photo_1) {
-        const err = new globalError("user_id, title, description, photo and price are required.", 400
+    const {user_id, country, title, description, price} = req.body;
+    if (!user_id || !country || !title || !description || !price) {
+        const err = new globalError("user_id, title, description and price are required.", 400
+        ,FAIL)
+        return next(err);
+    } else if (!req.file) {
+        const err = new globalError("A photo of the product is requeired.", 400
         ,FAIL)
         return next(err);
     }
@@ -72,12 +77,14 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         ,FAIL)
         return next(err);
     }
+    const result = await cloudinary.v2.uploader.upload(req.file.path);
+
     Products.create({
         user_id: user_id,
         title: title,
         description: description,
         price: price,
-        photo_1: photo_1,
+        photo_1: result.secure_url,
         }).then((result) => {
             return res.status(201).send({
             status: SUCCESS,
