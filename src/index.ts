@@ -34,7 +34,7 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
 const connectToDB =  async () => {
   try {
     await sequelize.authenticate();
-    sequelize.sync();
+    sequelize.sync({ alter: true});
     console.log("Connection to DB has been established successfully.");
     return true;
   } catch (error) {
