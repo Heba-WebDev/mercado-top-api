@@ -7,6 +7,7 @@ import { wrapper } from "../middlewares/asyncWrapper";
 import { statusCode } from "../utils/httpStatusCode";
 import { globalError } from "../utils/globalError";
 import Users from "../data/users";
+import Categories from "../data/categories";
 const { SUCCESS, FAIL } = statusCode;
 
 
@@ -57,9 +58,9 @@ const getProductById = wrapper(async(req: Request, res: Response, next: NextFunc
 });
 
 const createProduct = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-    const {user_id, country, title, description, price} = req.body;
-    if (!user_id || !country || !title || !description || !price) {
-        const err = new globalError("user_id, title, description and price are required.", 400
+    const {user_id, country, title, description, price, category_id} = req.body;
+    if (!user_id || !country || !title || !description || !price || !category_id) {
+        const err = new globalError("user_id, title, description, price and category_id are required.", 400
         ,FAIL)
         return next(err);
     } else if (!req.file) {
@@ -78,6 +79,15 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         return next(err);
     }
     const result = await cloudinary.v2.uploader.upload(req.file.path);
+    const category = await Categories.findOne({
+        where: {category_id: category_id}
+    })
+
+    if (!category) {
+        const err = new globalError("Category is not found.", 400
+        ,FAIL)
+        return next(err);
+    }
 
     Products.create({
         user_id: user_id,
@@ -85,6 +95,7 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         description: description,
         price: price,
         photo_1: result.secure_url,
+        category_id: category_id,
         }).then((result) => {
             return res.status(201).send({
             status: SUCCESS,
