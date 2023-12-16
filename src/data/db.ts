@@ -3,6 +3,7 @@ import Users from "./users";
 import Locations from "./locations";
 import Products from "./products";
 import Categories from "./categories";
+import Currencies from "./currencies";
 
 const sequelize = new Sequelize(
   process.env.DATABASE as string,
@@ -14,7 +15,7 @@ const sequelize = new Sequelize(
     define: {
         freezeTableName: true,
     },
-    models: [Users, Locations, Products, Categories]
+    models: [Users, Locations, Products, Categories, Currencies]
   },
 );
 
