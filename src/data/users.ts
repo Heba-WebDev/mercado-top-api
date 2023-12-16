@@ -18,7 +18,7 @@ export default class Users extends Model {
   @Column({
     type: DataType.STRING,
     validate: {isEmail: true},
-    unique: true,
+    unique: 'email',
   })
   email?: string;
 
