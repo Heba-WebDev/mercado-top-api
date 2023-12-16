@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, Default } from '
 import Users from './users';
 import Locations from './locations';
 import Category from './categories';
+import Currencies from './currencies';
 
 @Table({tableName: "products", timestamps: false, freezeTableName: true })
 export default class Products extends Model {
@@ -28,6 +29,13 @@ export default class Products extends Model {
 
   @BelongsTo(() => Category)
   category?: Category;
+
+  @ForeignKey(() => Currencies)
+  @Column(DataType.INTEGER)
+  currency_id?: number;
+
+  @BelongsTo(() => Currencies)
+  currency?: Currencies;
 
 
   @Column({
