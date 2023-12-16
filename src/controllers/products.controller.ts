@@ -8,6 +8,7 @@ import { statusCode } from "../utils/httpStatusCode";
 import { globalError } from "../utils/globalError";
 import Users from "../data/users";
 import Categories from "../data/categories";
+import Currencies from "../data/currencies";
 const { SUCCESS, FAIL } = statusCode;
 
 
@@ -58,9 +59,9 @@ const getProductById = wrapper(async(req: Request, res: Response, next: NextFunc
 });
 
 const createProduct = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-    const {user_id, country, title, description, price, category_id} = req.body;
-    if (!user_id || !country || !title || !description || !price || !category_id) {
-        const err = new globalError("user_id, title, description, price and category_id are required.", 400
+    const {user_id, country, title, description, price, currency, category_id} = req.body;
+    if (!user_id || !country || !title || !description || !price || !currency || !category_id) {
+        const err = new globalError("user_id, title, description, price, currency and category_id are required.", 400
         ,FAIL)
         return next(err);
     } else if (!req.file) {
@@ -78,16 +79,26 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         ,FAIL)
         return next(err);
     }
-    const result = await cloudinary.v2.uploader.upload(req.file.path);
+
     const category = await Categories.findOne({
         where: {category_id: category_id}
-    })
-
+    });
     if (!category) {
         const err = new globalError("Category is not found.", 400
         ,FAIL)
         return next(err);
     }
+
+    const curr = await Currencies.findOne({
+        where: {currency_id: currency}
+    });
+    if (!curr) {
+        const err = new globalError("This currency is not supported.", 400
+        ,FAIL)
+        return next(err);
+    }
+
+    const result = await cloudinary.v2.uploader.upload(req.file.path);
 
     Products.create({
         user_id: user_id,
@@ -96,6 +107,7 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         price: price,
         photo_1: result.secure_url,
         category_id: category_id,
+        currency_id: currency
         }).then((result) => {
             return res.status(201).send({
             status: SUCCESS,
