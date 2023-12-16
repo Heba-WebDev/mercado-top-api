@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, Default } from 'sequelize-typescript';
 import Users from './users';
 import Locations from './locations';
+import Category from './categories';
 
 @Table({tableName: "products", timestamps: false, freezeTableName: true })
 export default class Products extends Model {
@@ -20,6 +21,14 @@ export default class Products extends Model {
   @ForeignKey(() => Locations)
   @Column(DataType.STRING)
   country?: string;
+
+  @ForeignKey(() => Category)
+  @Column(DataType.INTEGER)
+  category_id?: number;
+
+  @BelongsTo(() => Category)
+  category?: Category;
+
 
   @Column({
     type: DataType.STRING,
