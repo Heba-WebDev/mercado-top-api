@@ -20,7 +20,6 @@ const getAllProducts = wrapper(async(req: Request, res: Response, next: NextFunc
     const totalPages = Math.ceil(totalProducts / limit);
 
     const result = await Products.findAll({
-        where: {is_active: true},
         limit: limit,
         offset: offset
     });

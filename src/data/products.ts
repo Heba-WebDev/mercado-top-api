@@ -4,7 +4,7 @@ import Locations from './locations';
 import Category from './categories';
 import Currencies from './currencies';
 
-@Table({tableName: "products", timestamps: false, freezeTableName: true })
+@Table({tableName: "products", timestamps: true, freezeTableName: true })
 export default class Products extends Model {
   @Default(DataType.UUIDV4)
   @Column({
@@ -72,10 +72,17 @@ export default class Products extends Model {
   photo_3?: string;
 
   @Column({
-    type: DataType.TIME,
-    allowNull: true,
+  type: DataType.DATE,
+  allowNull: true,
   })
-  posted_at?: number;
+  createdAt?: Date;
+
+  @Column({
+  type: DataType.DATE,
+  allowNull: true,
+  })
+  updatedAt?: Date;
+
 
   @Column({
     type: DataType.BOOLEAN,
