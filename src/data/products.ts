@@ -4,7 +4,7 @@ import Locations from './locations';
 import Category from './categories';
 import Currencies from './currencies';
 
-@Table({tableName: "products", timestamps: true, freezeTableName: true })
+@Table({tableName: "products", freezeTableName: true })
 export default class Products extends Model {
   @Default(DataType.UUIDV4)
   @Column({
@@ -18,6 +18,12 @@ export default class Products extends Model {
   user_id?: number;
   @BelongsTo(() => Users)
   user?: Users;
+
+  @ForeignKey(() => Users)
+  @Column(DataType.CHAR)
+  user_name?: string;
+  @BelongsTo(() => Users)
+  username?: Users;
 
   @ForeignKey(() => Locations)
   @Column(DataType.STRING)
