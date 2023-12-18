@@ -14,7 +14,7 @@ const { SUCCESS, FAIL } = statusCode;
 
 const getAllProducts = wrapper(async(req: Request, res: Response, next: NextFunction) => {
     const page = req.query.page ? parseInt(req.query.page as string) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 2;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 8;
     const offset = (page - 1) * limit;
     const totalProducts = await Products.count();
     const totalPages = Math.ceil(totalProducts / limit);
@@ -101,12 +101,14 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
 
     Products.create({
         user_id: user_id,
+        user_name: usr.name,
         title: title,
         description: description,
         price: price,
         photo_1: result.secure_url,
         category_id: category_id,
-        currency_id: currency
+        currency_id: currency,
+        country: country,
         }).then((result) => {
             return res.status(201).send({
             status: SUCCESS,
