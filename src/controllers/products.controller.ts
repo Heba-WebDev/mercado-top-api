@@ -79,23 +79,23 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         return next(err);
     }
 
-    const category = await Categories.findOne({
-        where: {category_id: category_id}
-    });
-    if (!category) {
-        const err = new globalError("Category is not found.", 400
-        ,FAIL)
-        return next(err);
-    }
+    // const category = await Categories.findOne({
+    //     where: {category_id: category_id}
+    // });
+    // if (!category) {
+    //     const err = new globalError("Category is not found.", 400
+    //     ,FAIL)
+    //     return next(err);
+    // }
 
-    const curr = await Currencies.findOne({
-        where: {currency_id: currency}
-    });
-    if (!curr) {
-        const err = new globalError("This currency is not supported.", 400
-        ,FAIL)
-        return next(err);
-    }
+    // const curr = await Currencies.findOne({
+    //     where: {currency_id: currency}
+    // });
+    // if (!curr) {
+    //     const err = new globalError("This currency is not supported.", 400
+    //     ,FAIL)
+    //     return next(err);
+    // }
 
     const result = await cloudinary.v2.uploader.upload(req.file.path);
 
