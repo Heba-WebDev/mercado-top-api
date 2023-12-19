@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
   process.env.PASSWORD as string,
   {
     host: process.env.HOST,
-    dialect: "mysql",
+    dialect: "postgres",
     define: {
         freezeTableName: true,
     },
