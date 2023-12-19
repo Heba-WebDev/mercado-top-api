@@ -1,6 +1,6 @@
 # Mercado Top / Backend
 
-This project is a backend for Mercado Top, a second hand market, built using Node/Express, TypeScript and Sequelize (MySQL).
+This project is a backend for Mercado Top, a secondhand market, built using Node/Express, TypeScript and Sequelize (MySQL).
 
 ## Technologies Used
 
