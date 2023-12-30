@@ -10,6 +10,8 @@ import { statusCode } from "../utils/httpStatusCode";
 import { globalError } from "../utils/globalError";
 import { generateJwt } from "../utils/generateJWT";
 import path from "path";
+import Products from "../data/products";
+import cloudinary from "../utils/cloudinary";
 const { SUCCESS, FAIL } = statusCode;
 
 
@@ -209,10 +211,48 @@ if (!usr) {
 
 });
 
+const updateUser = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+    const {user_id, name, email, password, country, profile_picture} = req.body;
+    if (!user_id) {
+        const err = new globalError("A user_id is requested.", 404
+    ,FAIL)
+    return next(err);
+    }
+    const usr = await Users.findOne({where: {user_id: user_id}});
+    if (!usr) {
+    const err = new globalError("User not found.", 400
+    ,FAIL)
+    return next(err);
+    }
+    const updatedFields: any = {};
+    if (name) updatedFields.name = name;
+    if (email) updatedFields.email = email;
+    if (password) {
+        const hashedPassword = await hash(password, 10);
+        updatedFields.password = hashedPassword;
+    }
+    if (country) updatedFields.country = country;
+    if(req.file) {
+        const result = await cloudinary.v2.uploader.upload(req.file.path);
+       updatedFields.profile_picture = result.url;
+    }
+    await Users.update(updatedFields, {where: {user_id: user_id} });
+    if (name) {
+        await Products.update({ user_name: name }, { where: { user_id: user_id }, returning: true });
+    }
+    usr.reload();
+    return res.status(200).send({
+        statusCode: SUCCESS,
+        data: {
+            usr
+        }
+    })
+});
 export {
     signup,
     signin,
     forgotPassword,
     resetPassword,
-    getUserById
+    getUserById,
+    updateUser
 }
