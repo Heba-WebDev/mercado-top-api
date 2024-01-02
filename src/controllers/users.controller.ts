@@ -192,7 +192,7 @@ if (!user_id) {
 const usr = await Users.findOne({where: {user_id: user_id}});
 
 if (!usr) {
-    const err = new globalError("User not found.", 400
+    const err = new globalError("User not found.", 404
     ,FAIL)
     return next(err);
 } else {
@@ -214,13 +214,13 @@ if (!usr) {
 const updateUser = wrapper(async(req: Request, res: Response, next: NextFunction) => {
     const {user_id, name, email, password, country, profile_picture} = req.body;
     if (!user_id) {
-        const err = new globalError("A user_id is requested.", 404
+        const err = new globalError("A user_id is required.", 400
     ,FAIL)
     return next(err);
     }
     const usr = await Users.findOne({where: {user_id: user_id}});
     if (!usr) {
-    const err = new globalError("User not found.", 400
+    const err = new globalError("User not found.", 404
     ,FAIL)
     return next(err);
     }
@@ -240,19 +240,43 @@ const updateUser = wrapper(async(req: Request, res: Response, next: NextFunction
     if (name) {
         await Products.update({ user_name: name }, { where: { user_id: user_id }, returning: true });
     }
-    usr.reload();
+    await usr.reload();
     return res.status(200).send({
         statusCode: SUCCESS,
         data: {
             usr
-        }
+        },
+        message: "Settings sucessfully updated"
     })
 });
+
+const deleteUser = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+    const {user_id} = req.body;
+    if (!user_id) {
+        const err = new globalError("A user_id is required.", 400
+    ,FAIL)
+    return next(err);
+    }
+    const usr = await Users.findOne({where: {user_id: user_id}});
+    if (!usr) {
+    const err = new globalError("User not found.", 404
+    ,FAIL)
+    return next(err);
+    }
+
+    await Users.destroy({where: {user_id: user_id}});
+    return res.status(200).send({
+        statusCode: SUCCESS,
+        data: null,
+        message: "The account has been successfully deleted."
+    })
+})
 export {
     signup,
     signin,
     forgotPassword,
     resetPassword,
     getUserById,
-    updateUser
+    updateUser,
+    deleteUser
 }
