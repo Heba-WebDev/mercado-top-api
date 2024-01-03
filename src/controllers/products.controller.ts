@@ -139,10 +139,19 @@ const deleteProduct = wrapper(async(req: Request, res: Response, next: NextFunct
     })
 
     if (!usr || !product) {
-        const err = new globalError("Invalid product number or token.", 401
+        const err = new globalError("Invalid product id or token.", 401
         ,FAIL)
         return next(err);
     }
+    const url = product.photo_1;
+    const publicId = url?.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.'));
+    try {
+        const result = await cloudinary.v2.uploader.destroy(publicId as string);
+        console.log('Image successfully deleted from Cloudinary:', result);
+    } catch (error) {
+        console.error('Failed to delete image from Cloudinary:', error);
+    }
+
     Products.destroy({
             where: {product_id: id}
     }).then((result) => {
