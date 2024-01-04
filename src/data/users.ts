@@ -15,6 +15,13 @@ export default class Users extends Model {
   @Column(DataType.STRING)
   name?: string;
 
+  @Column(DataType.STRING)
+  username?: string;
+
+  @Default("")
+  @Column(DataType.STRING)
+  biography?: string;
+
   @Column({
     type: DataType.STRING,
     validate: {isEmail: true},
