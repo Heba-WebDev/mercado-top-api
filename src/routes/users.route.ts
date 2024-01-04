@@ -4,7 +4,7 @@ import upload from "../middlewares/multer";
 
 const userRouter = Router();
 
-userRouter.route("/signup").post(signup);
+userRouter.route("/signup").post(upload.single('profile_picture'), signup);
 userRouter.route("/signin").post(signin);
 userRouter.route("/forgotPassword").post(forgotPassword);
 userRouter.route("/resetPassword").post(resetPassword);

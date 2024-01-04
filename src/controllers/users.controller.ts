@@ -16,9 +16,9 @@ const { SUCCESS, FAIL } = statusCode;
 
 
 const signup = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-const { name, email, password, country, profile_picture } = req.body;
-if (!name || !email || !password || !country) {
-    const err = new globalError("Name, Email, Password and country are required.", 400
+const { name, username, email, password, country, profile_picture } = req.body;
+if (!name || !username || !email || !password || !country) {
+    const err = new globalError("Name, Username, Email, Password and country are required.", 400
     ,FAIL)
     return next(err);
 }
@@ -32,6 +32,11 @@ if (usr) {
 }
 
 const hashedPassword = await hash(password, 10);
+let pic;
+if(req.file) {
+        const result = await cloudinary.v2.uploader.upload(req.file.path);
+        pic = result.url;
+}
 
 const user = new Users({name: name, email: email, password: password});
 Users.create({
@@ -39,7 +44,8 @@ Users.create({
     email: email,
     password: hashedPassword,
     country: country,
-    profile_picture: profile_picture || "black-guy.jpg"
+    biography: "",
+    profile_picture: pic || "black-guy.jpg"
 })
 .then((result) => {
     return res.status(201).send({
