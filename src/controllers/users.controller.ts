@@ -16,17 +16,42 @@ const { SUCCESS, FAIL } = statusCode;
 
 
 const signup = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-const { name, username, email, password, country, profile_picture } = req.body;
-if (!name || !username || !email || !password || !country) {
-    const err = new globalError("Name, Username, Email, Password and country are required.", 400
+const { name, username, email, password, country, profile_picture, terms } = req.body;
+if (!name || !username || !email || !password || !country || !terms) {
+    const err = new globalError("Name, Username, Email, Password, Country and Terms are required.", 400
     ,FAIL)
     return next(err);
 }
 
-const usr = await Users.findOne({where: {email: email}});
+const usernamePattern = /^[A-Za-z0-9_-]*$/;
 
+if (!usernamePattern.test(username)) {
+    const err = new globalError("Username can only contain letters, digits, underscores or dashes.", 400, FAIL);
+    return next(err);
+}
+
+const emailPattern = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+if (!emailPattern.test(email)) {
+    const err = new globalError("Invalid email.", 400, FAIL);
+    return next(err);
+}
+
+const usr = await Users.findOne({where: {email: email}});
 if (usr) {
     const err = new globalError("Email already exists.", 400
+    ,FAIL)
+    return next(err);
+}
+
+const usrname = await Users.findOne({where: {username: username}});
+if (usrname) {
+    const err = new globalError("Username already exists.", 400
+    ,FAIL)
+    return next(err);
+}
+
+if(!terms) {
+    const err = new globalError("You must agree to the Terms & Conditions.", 404
     ,FAIL)
     return next(err);
 }
@@ -34,18 +59,19 @@ if (usr) {
 const hashedPassword = await hash(password, 10);
 let pic;
 if(req.file) {
-        const result = await cloudinary.v2.uploader.upload(req.file.path);
-        pic = result.url;
+    const result = await cloudinary.v2.uploader.upload(req.file.path);
+    pic = result.url;
 }
 
-const user = new Users({name: name, email: email, password: password});
 Users.create({
     name: name,
+    username: username,
     email: email,
     password: hashedPassword,
     country: country,
     biography: "",
-    profile_picture: pic || "black-guy.jpg"
+    profile_picture: pic ? pic : "black-guy.jpg",
+    terms: true,
 })
 .then((result) => {
     return res.status(201).send({
@@ -53,9 +79,11 @@ Users.create({
         message: "User successfully created.",
         data: {
             name: name,
+            username: username,
             email: email,
             country: country,
-            profile_picture: profile_picture || "black-guy.jpg"
+            profile_picture: profile_picture,
+            terms: true,
         }
     })
 })

@@ -45,4 +45,8 @@ export default class Users extends Model {
   @ForeignKey(() => Locations)
   @Column(DataType.STRING)
   country?: string;
+
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  terms?: boolean;
 }
