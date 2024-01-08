@@ -80,9 +80,10 @@ Users.create({
         data: {
             name: name,
             username: username,
+            role: result.dataValues.role,
             email: email,
             country: country,
-            profile_picture: profile_picture,
+            profile_picture: result?.dataValues?.profile_picture || profile_picture,
             terms: true,
         }
     })
@@ -118,6 +119,7 @@ if (!matchedPassword) {
         data: {
             user_id: usr.user_id,
             name: usr.name,
+            role: usr.role,
             email: usr.email,
             country: usr.country,
             accessToken: token,
@@ -304,7 +306,42 @@ const deleteUser = wrapper(async(req: Request, res: Response, next: NextFunction
         data: null,
         message: "The account has been successfully deleted."
     })
-})
+});
+
+const updateRole = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+    const {id} = req.body;
+    const checkId = await Users.findOne({where: {user_id: id}});
+    if(!id || !checkId) {
+        const err = new globalError("Invalid user_id is required.", 400
+    ,FAIL)
+    return next(err);
+    }
+
+    const authHeader = req.headers["Authorization"] || req.headers["authorization"];
+    if (!authHeader) {
+        const err = new globalError("Token is required.", 401
+        ,FAIL)
+        return next(err);
+    }
+    const decodedToken = jwt.verify(authHeader as string, process.env.JWT_SECRET_KEY as string) as jwt.JwtPayload;
+    const userId = decodedToken?.user_id;
+    const usr = await Users.findOne({
+        where: {user_id: userId}
+    });
+    if(usr?.role === "user") {
+        const err = new globalError("You do not have permission to perform this action.", 401
+        ,FAIL)
+        return next(err);
+    };
+    await Users.update({ role: "admin" }, { where: { user_id: id } }).then((result) => {
+        res.status(200).send({
+            status: SUCCESS,
+            data: null,
+            message: 'User role updated successfully.'
+        })
+    });
+});
+
 export {
     signup,
     signin,
@@ -312,5 +349,6 @@ export {
     resetPassword,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    updateRole
 }
