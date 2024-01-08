@@ -18,6 +18,10 @@ export default class Users extends Model {
   @Column(DataType.STRING)
   username?: string;
 
+  @Default('user')
+  @Column(DataType.ENUM('user', 'admin'))
+  role?: string;
+
   @Default("")
   @Column(DataType.STRING)
   biography?: string;

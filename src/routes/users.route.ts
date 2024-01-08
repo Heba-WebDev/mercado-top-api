@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, signin, forgotPassword, resetPassword, getUserById, updateUser, deleteUser } from "../controllers/users.controller";
+import { signup, signin, forgotPassword, resetPassword, getUserById, updateUser, deleteUser, updateRole } from "../controllers/users.controller";
 import upload from "../middlewares/multer";
 
 const userRouter = Router();
@@ -13,6 +13,7 @@ userRouter.route("/updateUser")
   .put(upload.single('profile_picture'), updateUser);
 
 userRouter.route("/").delete(deleteUser);
+userRouter.route("/updateRole").put(updateRole);
 
 export {
     userRouter
