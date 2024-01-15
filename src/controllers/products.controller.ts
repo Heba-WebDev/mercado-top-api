@@ -58,17 +58,22 @@ const getProductById = wrapper(async(req: Request, res: Response, next: NextFunc
 });
 
 const createProduct = wrapper(async(req: Request, res: Response, next: NextFunction) => {
-    const {user_id, country, title, description, price, currency, category_id} = req.body;
-    if (!user_id || !country || !title || !description || !price || !currency || !category_id) {
-        const err = new globalError("user_id, title, description, price, currency and category_id are required.", 400
+    const {user_id, country, title, description, price, currency, category_id, quantity} = req.body;
+    if (!user_id || !country || !title || !description || !price || !currency || !category_id || !quantity) {
+        const err = new globalError("user_id, title, description, price, currency, category_id and quantity are required.", 400
         ,FAIL)
         return next(err);
-    } else if (!req.file) {
+    } else if (!req.files || !(req.files as { [fieldname: string]: Express.Multer.File[] })['photo_1']) {
         const err = new globalError("A photo of the product is requeired.", 400
         ,FAIL)
         return next(err);
     }
 
+    if (!Number(quantity)) {
+        const err = new globalError("Quantity has to be a number.", 400
+        ,FAIL)
+        return next(err);
+    }
     const usr = await Users.findOne({
         where: {user_id: user_id}
     });
@@ -97,7 +102,14 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
     //     return next(err);
     // }
 
-    const result = await cloudinary.v2.uploader.upload(req.file.path);
+
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const photo_1 = files['photo_1'] ? files['photo_1'][0] : null;
+        const photo_1_result = photo_1 ? await cloudinary.v2.uploader.upload(photo_1.path) : null;
+        const photo_2 = files['photo_2'] ? files['photo_2'][0] : null;
+        const photo_2_result = photo_2 ? await cloudinary.v2.uploader.upload(photo_2.path) : null;
+        const photo_3 = files['photo_3'] ? files['photo_3'][0] : null;
+        const photo_3_result = photo_3 ? await cloudinary.v2.uploader.upload(photo_3.path) : null;
 
     Products.create({
         user_id: user_id,
@@ -105,7 +117,9 @@ const createProduct = wrapper(async(req: Request, res: Response, next: NextFunct
         title: title,
         description: description,
         price: price,
-        photo_1: result.secure_url,
+        photo_1: photo_1_result?.secure_url,
+        photo_2: photo_2_result ? photo_2_result.secure_url : null,
+        photo_3: photo_3_result ? photo_3_result.secure_url : null,
         category_id: category_id,
         currency_id: currency,
         country: country,
