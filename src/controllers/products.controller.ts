@@ -13,8 +13,9 @@ const { SUCCESS, FAIL } = statusCode;
 
 
 const getAllProducts = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+
     const page = req.query.page ? parseInt(req.query.page as string) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 8;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
     const offset = (page - 1) * limit;
     const totalProducts = await Products.count();
     const totalPages = Math.ceil(totalProducts / limit);
