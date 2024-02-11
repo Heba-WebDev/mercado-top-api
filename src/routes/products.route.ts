@@ -1,6 +1,6 @@
 
 import { Router } from "express";
-import { createProduct, getAllProducts,
+import { createProduct, getAllProducts,getProductByCategoryLocation,
 getProductById, deleteProduct } from "../controllers/products.controller";
 import upload from "../middlewares/multer";
 
@@ -13,6 +13,7 @@ const uploadFields = [
 const productsRouter = Router();
 
 productsRouter.route("/").get(getAllProducts);
+productsRouter.route("/byCategoryLocation").get(getProductByCategoryLocation);
 productsRouter.route("/:id").get(getProductById);
 productsRouter.route("/").post(upload.fields(uploadFields), createProduct);
 productsRouter.route("/").delete(deleteProduct);
