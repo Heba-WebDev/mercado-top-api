@@ -58,6 +58,59 @@ const getProductById = wrapper(async(req: Request, res: Response, next: NextFunc
     });
 });
 
+const getProductByCategoryLocation = wrapper(async(req: Request, res: Response, next: NextFunction) => {
+    const {category, country} = req.query;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
+    const offset = (page - 1) * limit;
+    
+    if (!category && !country) {
+        const err = new globalError("Please provide a valid category and/or location.", 404
+        ,FAIL)
+        return next(err);
+    }
+    let result;
+    if (category && !country) {
+        result = await Products.findAll({
+        limit: limit,
+        offset: offset,
+        include: [{
+            model: Categories,
+            where: {category_name: category}
+        }],
+    });
+    } else if (!category && country) {
+        result = await Products.findAll({
+            limit: limit,
+            offset: offset,
+            where: {country: country},
+    });
+    } else {
+        result = await Products.findAll({
+        limit: limit,
+        offset: offset,
+        where: {country: country},
+        include: [{
+            model: Categories,
+            where: {category_name: category}
+        }],
+    });
+    }
+
+    if (!result) {
+    const err = new globalError("No product found.", 404
+        ,FAIL)
+    return next(err);
+    }
+    const totalProducts = result.length;
+    const totalPages = Math.ceil(totalProducts / limit);
+    res.status(200).send({
+    status: SUCCESS,
+    data: result,
+    totalPages: totalPages
+    });
+});
+
 const createProduct = wrapper(async(req: Request, res: Response, next: NextFunction) => {
     const {user_id, country, title, description, price, currency, category_id, quantity} = req.body;
     if (!user_id || !country || !title || !description || !price || !currency || !category_id || !quantity) {
@@ -182,6 +235,7 @@ const deleteProduct = wrapper(async(req: Request, res: Response, next: NextFunct
 export {
     getAllProducts,
     getProductById,
+    getProductByCategoryLocation,
     createProduct,
     deleteProduct
 }
